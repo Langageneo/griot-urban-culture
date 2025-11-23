@@ -1,24 +1,19 @@
 const express = require('express');
-const { getChannelVideos } = require('../services/youtubeService');
-const Video = require('../models/Video');
-
 const router = express.Router();
+const { google } = require('googleapis');
+const youtube = google.youtube('v3');
 
-// Récupérer les vidéos d'une chaîne YouTube
-router.get('/:channelId', async (req, res) => {
+// Récupérer les vidéos d'une chaîne
+router.get('/channel/:channelId', async (req, res) => {
   try {
-    const videos = await getChannelVideos(req.params.channelId);
-    res.json(videos);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Sauvegarder les vidéos en base de données
-router.post('/save', async (req, res) => {
-  try {
-    const savedVideos = await Video.insertMany(req.body.videos);
-    res.json(savedVideos);
+    const response = await youtube.search.list({
+      key: process.env.YOUTUBE_API_KEY,
+      channelId: req.params.channelId,
+      part: 'snippet',
+      order: 'date',
+      maxResults: 10
+    });
+    res.json(response.data.items);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
