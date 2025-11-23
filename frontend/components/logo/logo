@@ -1,0 +1,16 @@
+import React from 'react';
+import styles from './Logo.styles.css';
+
+const Logo = ({ animated = false }) => {
+  return (
+    <div className={styles.logoContainer}>
+      {animated ? (
+        <img src="/logo-animated.svg" alt="Griot Urban Culture" className={styles.logoAnimated} />
+      ) : (
+        <img src="/logo.svg" alt="Griot Urban Culture" className={styles.logoStatic} />
+      )}
+    </div>
+  );
+};
+
+export default Logo;
