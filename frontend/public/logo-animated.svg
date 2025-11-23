@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Masque africain -->
+  <path d="M100 20C50 20 20 50 20 100s30 80 80 80 80-30 80-80S150 20 100 20zm0 150c-40 0-70-30-70-70s30-70 70-70 70-70 40 0 70 30 70 70-30 70-70 70-70 70z" fill="#FF6B35">
+    <animate attributeName="fill" values="#FF6B35;#E74C3C;#FF6B35" dur="3s" repeatCount="indefinite"/>
+  </path>
+  <!-- Halo animé -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#4A90E2" stroke-width="5">
+    <animate attributeName="r" values="90;95;90" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;0.9;0.7" dur="4s" repeatCount="indefinite"/>
+  </circle>
+</svg>
