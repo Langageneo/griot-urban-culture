@@ -6,35 +6,33 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-// Routes existantes
+// Routes
 const youtubeRoutes = require('./routes/youtube');
-const twitterRoutes = require('./routes/twitter');
 const instagramRoutes = require('./routes/instagram');
-
-// NOUVEAUX: Routes pour auth/abonnements/paiements
+const twitterRoutes = require('./routes/twitter');
 const authRoutes = require('./routes/auth');
 const subscriptionRoutes = require('./routes/subscriptions');
 const paymentRoutes = require('./routes/payments');
 
 const app = express();
 
-// Middleware de sécurité
+// Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5000'], // Ajoute ton domaine en production
+  origin: ['http://localhost:3000', 'http://localhost:5000', 'http://10.0.2.2:5000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Limite les requêtes pour éviter les abus
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limite chaque IP à 100 requêtes par fenêtre
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use(limiter);
 
-// Connexion à MongoDB
+// MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -42,27 +40,25 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connecté à MongoDB'))
 .catch(err => console.error('Erreur MongoDB:', err));
 
-// Routes existantes (à garder)
+// Routes
 app.use('/api/youtube', youtubeRoutes);
-app.use('/api/twitter', twitterRoutes);
 app.use('/api/instagram', instagramRoutes);
-
-// NOUVEAUX: Routes pour l'authentification et paiements
+app.use('/api/twitter', twitterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/payments', paymentRoutes);
 
-// Route de test
+// Test route
 app.get('/', (req, res) => {
   res.json({ message: 'Backend Griot Urban Culture - OK' });
 });
 
-// Gestion des erreurs 404
-app.use((req, res, next) => {
+// 404 Handler
+app.use((req, res) => {
   res.status(404).json({ message: 'Route non trouvée' });
 });
 
-// Gestion des erreurs
+// Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Erreur serveur' });
