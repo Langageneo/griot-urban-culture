@@ -1,16 +1,28 @@
 {
   "name": "griot-urban-culture-frontend",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "next": "^14.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-tsparticles": "^2.12.2",
-    "tsparticles": "^2.12.0"
+    "@types/node": "22.7.4",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.1",
+    "autoprefixer": "10.4.19",
+    "eslint": "9.11.1",
+    "eslint-config-next": "14.2.7",
+    "framer-motion": "^11.2.10",
+    "next": "14.2.7",
+    "postcss": "8.4.32",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "3.4.10"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5"
   }
 }
