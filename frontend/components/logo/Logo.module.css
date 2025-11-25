@@ -1,0 +1,93 @@
+/* ===== LOGO GRIOT URBAN (Effets Halo + Animations) ===== */
+.griot-logo {
+  /* Base */
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: white;
+  text-shadow: 0 0 8px rgba(74, 144, 226, 0.7); /* Halo bleu #4A90E2 */
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.griot-logo::before {
+  /* Effet de glow arrière */
+  content: '';
+  position: absolute;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  background: linear-gradient(45deg, #4A90E2, #00F5FF);
+  border-radius: 50%;
+  opacity: 0.2;
+  z-index: -1;
+  filter: blur(10px);
+  transition: opacity 0.3s ease;
+}
+
+.griot-logo:hover::before {
+  /* Animation au survol */
+  opacity: 0.5;
+  animation: pulse 1.5s infinite alternate;
+}
+
+.griot-logo__icon {
+  /* Style de l'icône (ex: masque africain/halo) */
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4A90E2, #00F5FF);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 15px rgba(74, 144, 226, 0.5),
+    0 0 30px rgba(0, 245, 255, 0.3);
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
+}
+
+.griot-logo:hover .griot-logo__icon {
+  /* Animation de l'icône au survol */
+  transform: rotate(0deg) scale(1.05);
+  box-shadow:
+    0 0 20px rgba(74, 144, 226, 0.7),
+    0 0 40px rgba(0, 245, 255, 0.5);
+}
+
+.griot-logo__text {
+  /* Texte avec effet métallique */
+  background: linear-gradient(90deg, #ffffff, #00F5FF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+}
+
+/* Animation de pulsation pour le halo */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+/* Version mobile (plus sobre) */
+@media (max-width: 768px) {
+  .griot-logo {
+    font-size: 1.5rem;
+    gap: 8px;
+  }
+
+  .griot-logo__icon {
+    width: 30px;
+    height: 30px;
+  }
+}
