@@ -1,51 +1,50 @@
+// routes/payments.js
+
 const express = require('express');
 const router = express.Router();
 const Flutterwave = require('flutterwave-node-v3');
 
-// Initialisation Flutterwave
+// Tes clés Flutterwave sandbox
 const flw = new Flutterwave(
-  process.env.FLW_PUBLIC_KEY,
-  process.env.FLW_SECRET_KEY
+  '1475fc98-2e9f-443e-812c-5a785567e845', // Client ID / Public Key sandbox
+  'UV4q8ZobmhEEYmlcjLpzqIZLi6uf0cTo'      // Secret Key sandbox
 );
 
-// Vérification de transaction
+// Exemple: montant attendu pour un abonnement ou paiement
+const expectedAmount = 1000; // À adapter selon ton modèle
+
+// Route pour vérifier le paiement
 router.post('/verify', async (req, res) => {
   try {
-    const { transactionId, expectedAmount } = req.body;
+    const { transactionId } = req.body;
 
     if (!transactionId) {
-      return res.status(400).json({ error: 'transactionId requis' });
+      return res.status(400).json({ error: 'Transaction ID requis' });
     }
 
-    // Appel API Flutterwave
+    // Vérification de la transaction via Flutterwave
     const response = await flw.Transaction.verify({ id: transactionId });
 
-    if (!response || !response.data) {
-      return res.status(400).json({ error: 'Transaction introuvable' });
+    // Vérifie que le paiement est en XOF
+    if (response.data.currency !== 'XOF') {
+      return res.status(400).json({ error: 'Devise non supportée' });
     }
 
-    const tx = response.data;
-
-    // Vérifie la devise
-    if (tx.currency !== 'XOF') {
-      return res.status(400).json({ error: 'Devise non supportée (XOF uniquement)' });
-    }
-
-    // Vérifie le montant attendu
-    if (expectedAmount && tx.amount !== expectedAmount) {
+    // Vérifie que le montant correspond à ce qui est attendu
+    if (response.data.amount !== expectedAmount) {
       return res.status(400).json({ error: 'Montant incorrect' });
     }
 
+    // Si tout est OK
     res.json({
-      status: "success",
-      message: "Paiement vérifié avec succès",
-      data: tx
+      message: 'Paiement vérifié avec succès',
+      transaction: response.data
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erreur Flutterwave:', err.message);
+    res.status(500).json({ error: 'Erreur serveur', details: err.message });
   }
 });
 
-// Export du router
 module.exports = router;
