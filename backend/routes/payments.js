@@ -1,23 +1,46 @@
-const Flutterwave = require('flutterwave-node-v3');
-const flw = new Flutterwave(process.env.FLW_PUBLIC_KEY, process.env.FLW_SECRET_KEY);
+const express = require("express");
+const router = express.Router();
+const Flutterwave = require("flutterwave-node-v3");
 
-router.post('/verify', async (req, res) => {
+const flw = new Flutterwave(
+  process.env.FLW_PUBLIC_KEY,
+  process.env.FLW_SECRET_KEY
+);
+
+router.post("/verify", async (req, res) => {
   try {
-    const { transactionId } = req.body;
+    const { transactionId, expectedAmount } = req.body;
+
+    if (!transactionId) {
+      return res.status(400).json({ error: "transactionId manquant" });
+    }
+
     const response = await flw.Transaction.verify({ id: transactionId });
 
-    // Vérifie que le paiement est valide et en XOF
-    if (response.data.currency !== 'XOF') {
-      return res.status(400).json({ error: 'Devise non supportée' });
+    if (!response || !response.data) {
+      return res.status(500).json({ error: "Réponse Flutterwave invalide" });
     }
 
-    // Vérifie que le montant correspond
-    if (response.data.amount !== expectedAmount) {  // À définir selon ton abonnement
-      return res.status(400).json({ error: 'Montant incorrect' });
+    // Vérifie devise
+    if (response.data.currency !== "XOF") {
+      return res.status(400).json({ error: "Devise non supportée" });
     }
 
-    res.json(response.data);
+    // Vérifie montant
+    if (expectedAmount && response.data.amount !== expectedAmount) {
+      return res.status(400).json({ error: "Montant incorrect" });
+    }
+
+    res.json({
+      status: "success",
+      message: "Paiement validé",
+      data: response.data,
+    });
+
   } catch (err) {
+    console.error("Erreur Flutterwave :", err);
     res.status(500).json({ error: err.message });
   }
 });
+
+module.exports = router;
