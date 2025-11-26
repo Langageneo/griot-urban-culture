@@ -26,7 +26,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rate limiting
-const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+});
 app.use(limiter);
 
 // MongoDB Connection
