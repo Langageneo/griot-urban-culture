@@ -26,10 +26,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-});
+const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
 app.use(limiter);
 
 // MongoDB Connection
@@ -49,14 +46,10 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/payments', paymentRoutes);
 
 // Test route
-app.get('/', (req, res) => {
-  res.json({ message: 'Backend Griot Urban Culture - OK' });
-});
+app.get('/', (req, res) => res.json({ message: 'Backend Griot Urban Culture - OK' }));
 
 // 404 Handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route non trouvée' });
-});
+app.use((req, res) => res.status(404).json({ message: 'Route non trouvée' }));
 
 // Error Handler
 app.use((err, req, res, next) => {
@@ -65,6 +58,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
