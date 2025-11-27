@@ -6,8 +6,9 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-// Import des routes
-// Assurez-vous que ces fichiers existent bien dans le dossier /routes/
+// --- Import des Routes ---
+// Webhook doit être importé séparément pour être géré en premier
+const webhookRoutes = require('./routes/webhook'); 
 const youtubeRoutes = require('./routes/youtube');
 const instagramRoutes = require('./routes/instagram');
 const twitterRoutes = require('./routes/twitter');
@@ -19,22 +20,27 @@ const app = express();
 
 // --- Middleware de Sécurité et Configuration ---
 
+// 🚨 1. ROUTE WEBHOOK (DOIT ÊTRE EN PREMIER POUR GÉRER LE CORPS BRUT)
+// Cette route n'utilise pas le middleware global express.json()
+app.use('/api/webhook', webhookRoutes); 
+
+// 2. Middlewares Globaux
+
 // Helmet sécurise les en-têtes HTTP
 app.use(helmet());
 
-// Configuration CORS
-// J'ai ajouté '*' pour faciliter le développement mobile (UserLAnd/Flutter)
-// En production, remplacez '*' par votre URL de frontend réelle.
+// Configuration CORS (autorise le développement mobile/local)
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5000', 'http://10.0.2.2:5000', '*'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
-app.use(express.json()); // Permet de lire les JSON envoyés par le frontend
-app.use(morgan('dev'));  // Affiche les requêtes dans la console
+// Express.json() est ici, après le Webhook
+app.use(express.json()); 
+app.use(morgan('dev'));  
 
-// Rate limiting (Limite le nombre de requêtes pour éviter le spam)
+// Rate limiting 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limite à 100 requêtes par IP
@@ -44,33 +50,30 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // --- Connexion Base de Données ---
-
-// Note: Les options useNewUrlParser/useUnifiedTopology ne sont plus nécessaires avec Mongoose 8+
 const dbURI = process.env.MONGODB_URI;
 
 if (!dbURI) {
-  console.error("❌ ERREUR FATALE: La variable MONGODB_URI est manquante dans le fichier .env");
+  console.error("❌ ERREUR FATALE: MONGODB_URI est manquant dans le fichier .env");
 } else {
   mongoose.connect(dbURI)
   .then(() => console.log('✅ Connecté à MongoDB avec succès'))
   .catch(err => console.error('❌ Erreur de connexion MongoDB:', err));
 }
 
-// --- Définition des Routes ---
+// --- Définition des Routes d'API ---
 
 app.use('/api/youtube', youtubeRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/twitter', twitterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', paymentRoutes); // Route Paiements Flutterwave
 
 // Route de test (Racine)
 app.get('/', (req, res) => {
   res.json({ 
     status: 'success',
-    message: 'Backend Griot Urban Culture est EN LIGNE 🚀',
-    platform: process.platform
+    message: 'Backend Griot Urban Culture est EN LIGNE 🚀'
   });
 });
 
@@ -79,7 +82,7 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route non trouvée (404)' });
 });
 
-// Gestionnaire global des erreurs (Empêche le crash complet en cas de bug mineur)
+// Gestionnaire global des erreurs 500
 app.use((err, req, res, next) => {
   console.error('🔥 Erreur Serveur:', err.stack);
   res.status(500).json({ 
@@ -88,11 +91,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// --- Démarrage du Serveur ---
+// --- Démarrage du Serveur (Ligne corrigée) ---
 
 const PORT = process.env.PORT || 5000;
-
-// La correction est ICI (plus de coupure de ligne)
 app.listen(PORT, () => {
   console.log(`\n🚀 Serveur démarré sur le port ${PORT}`);
   console.log(`👉 Test local: http://localhost:${PORT}`);
