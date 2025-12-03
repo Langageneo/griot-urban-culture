@@ -30,7 +30,7 @@
     "nodemon": "3.0.2"
   },
   "engines": {
-    "node": ">=18.0.0 <21.0.0"  // Version LTS recommandée pour la stabilité
+    "node": ">=18.0.0 <21.0.0"
   },
   "repository": {
     "type": "git",
